@@ -83,14 +83,16 @@ func (b *backend) pathLogin(ctx context.Context, req *logical.Request, d *framew
 
   l, err := ldap.Dial("tcp", fmt.Sprintf("%s:%d", ldapserver, ldapport))
   if err != nil {
-      return logical.ErrorResponse(err), nil
+		  log.Fatal(err)
+      return logical.ErrorResponse("Unable to connect"), nil
   }
   defer l.Close()
 
   // First bind with a read only user
   err = l.Bind(bindusername, bindpassword)
   if err != nil {
-    return logical.ErrorResponse(err), nil
+		log.Fatal(err)
+    return logical.ErrorResponse("Unable to bind"), nil
   }
 
   objectguid, name := GetMachineInfo(l, "dc=grt,dc=local", computername, guid)

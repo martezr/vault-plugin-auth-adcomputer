@@ -1,4 +1,4 @@
-module github.com/martezr/vault-auth-plugin-adcomputer
+module github.com/martezr/vault-plugin-auth-adcomputer
 
 go 1.12
 

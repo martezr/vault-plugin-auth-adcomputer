@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	adcomputerauth "github.com/martezr/vault-auth-plugin-adcomputer"
+	adcomputerauth "github.com/martezr/vault-plugin-auth-adcomputer"
 	"github.com/hashicorp/vault/api"
 	"github.com/hashicorp/vault/sdk/plugin"
 )
