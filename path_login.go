@@ -2,10 +2,10 @@ package adcomputer
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strings"
 	"time"
+  "log"
 
   "gopkg.in/ldap.v2"
 	"github.com/hashicorp/vault/sdk/framework"
@@ -55,7 +55,7 @@ func (b *backend) pathLoginAliasLookahead(ctx context.Context, req *logical.Requ
 
 func (b *backend) pathLogin(ctx context.Context, req *logical.Request, d *framework.FieldData) (*logical.Response, error) {
   // Load and validate auth method configuration
-  config, err := b.config(ctx, req.Storage)
+  config, err := b.Config(ctx, req.Storage)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +112,7 @@ func (b *backend) pathLogin(ctx context.Context, req *logical.Request, d *framew
 			},
 			DisplayName: computername,
 			LeaseOptions: logical.LeaseOptions{
-				TTL:       time.Duration(token.ExpiresIn) * time.Second,
+				TTL:       30,
 				Renewable: false,
 			},
 			Alias: &logical.Alias{

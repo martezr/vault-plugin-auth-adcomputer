@@ -11,5 +11,5 @@ require (
 	golang.org/x/sys v0.0.0-20190416152802-12500544f89f // indirect
 	google.golang.org/genproto v0.0.0-20190415143225-d1146b9035b9 // indirect
 	google.golang.org/grpc v1.20.0 // indirect
-  gopkg.in/ldap.v2
+  gopkg.in/ldap.v2 v2.5.1
 )

@@ -3,7 +3,6 @@ package adcomputer
 import (
 	"context"
 	"fmt"
-	"net/url"
 
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/helper/policyutil"
@@ -48,7 +47,7 @@ func pathConfig(b *backend) *framework.Path {
 			logical.ReadOperation:   b.pathConfigRead,
 		},
 
-		HelpSynopsis: pathSyn,
+		HelpSynopsis: pathConfigSyn,
 	}
 }
 
