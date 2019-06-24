@@ -1,4 +1,4 @@
-module github.com/hashicorp/vault-auth-plugin-example
+module github.com/martezr/vault-auth-plugin-adcomputer
 
 go 1.12
 

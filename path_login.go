@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"time"
   "log"
 
   "gopkg.in/ldap.v2"
@@ -84,24 +83,24 @@ func (b *backend) pathLogin(ctx context.Context, req *logical.Request, d *framew
 
   l, err := ldap.Dial("tcp", fmt.Sprintf("%s:%d", ldapserver, ldapport))
   if err != nil {
-      log.Fatal(err)
+      return logical.ErrorResponse(err), nil
   }
   defer l.Close()
 
   // First bind with a read only user
   err = l.Bind(bindusername, bindpassword)
   if err != nil {
-      log.Fatal(err)
+    return logical.ErrorResponse(err), nil
   }
 
   objectguid, name := GetMachineInfo(l, "dc=grt,dc=local", computername, guid)
 
   if computername != name {
-    log.Fatal("No matching computer account found")
+    return logical.ErrorResponse("No matching computer account found"), nil
   }
 
   if objectguid != guid {
-    log.Fatal("Mismatch GUID")
+    return logical.ErrorResponse("Mismatch GUID"), nil
   }
 
 	resp := &logical.Response{
