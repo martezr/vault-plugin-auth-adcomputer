@@ -21,9 +21,9 @@ func pathLogin(b *backend) *framework.Path {
 				Type:        framework.TypeString,
 				Description: "The name of the computer account.",
 			},
-			"guid": &framework.FieldSchema{
+			"sid": &framework.FieldSchema{
 				Type:        framework.TypeString,
-				Description: "Computer account GUID.",
+				Description: "Computer account SID.",
 			},
 		},
 
@@ -70,16 +70,16 @@ func (b *backend) pathLogin(ctx context.Context, req *logical.Request, d *framew
 	}
 
   // Validate guid argument
-  guid := strings.ToLower(d.Get("guid").(string))
+  sid := strings.ToLower(d.Get("sid").(string))
 
-	if guid == "" {
-    return logical.ErrorResponse("missing guid"), nil
+	if sid == "" {
+    return logical.ErrorResponse("missing sid"), nil
 	}
 
-  bindusername := "administrator@grt.local"
-  bindpassword := "VAe(f-k(iQJ"
-  ldapserver := "3.216.29.106"
-  ldapport := 389
+  bindusername := config.BindUsername
+  bindpassword := config.BindPassword
+  ldapserver := config.LdapServer
+  ldapport := config.LdapPort
 
   l, err := ldap.Dial("tcp", fmt.Sprintf("%s:%d", ldapserver, ldapport))
   if err != nil {
@@ -93,14 +93,17 @@ func (b *backend) pathLogin(ctx context.Context, req *logical.Request, d *framew
 		return logical.ErrorResponse(err.Error()), nil
   }
 
-  objectguid, name := GetMachineInfo(l, "dc=grt,dc=local", computername, guid)
+  objectsid, name := GetMachineInfo(l, "dc=grt,dc=local", computername, sid)
+
+	name = strings.ToLower(name)
 
   if computername != name {
     return logical.ErrorResponse("No matching computer account found"), nil
   }
 
-  if objectguid != guid {
-    return logical.ErrorResponse("Mismatch GUID"), nil
+	objectsid = fmt.Sprintf("%x", objectsid)
+  if objectsid != sid {
+    return logical.ErrorResponse("Mismatch SID"), nil
   }
 
 	resp := &logical.Response{
@@ -124,11 +127,11 @@ func (b *backend) pathLogin(ctx context.Context, req *logical.Request, d *framew
 }
 
 // Reference: Scott Sutherland (@_nullbind)
-func GetMachineInfo(conn *ldap.Conn, baseDN string, computername string, guid string)(outguid, name string ) {
+func GetMachineInfo(conn *ldap.Conn, baseDN string, computername string, sid string)(outsid, name string ) {
 
 	attributes := []string{
 		"name",
-		"objectGUID"}
+		"objectSid"}
 
   // TODO: Add computername to filter to find just the desired match
 	filter := "(&(sAMAccountType=805306369))"
@@ -140,13 +143,13 @@ func GetMachineInfo(conn *ldap.Conn, baseDN string, computername string, guid st
   }
 
   // Fetch computer account GUID
-  ldapGuid := sr.Entries[0].GetAttributeValue("objectGUID")
-  fmt.Printf("GUID: %x \n", ldapGuid)
+  ldapSid := sr.Entries[0].GetAttributeValue("objectSid")
+  fmt.Printf("Computer SID: %x \n", ldapSid)
 
   accountName := sr.Entries[0].GetAttributeValue("name")
   fmt.Printf("Computer Name: %s \n", accountName)
 
-  return ldapGuid, accountName
+  return ldapSid, accountName
 }
 
 func ldapSearch(searchDN string, filter string, attributes []string, conn *ldap.Conn) *ldap.SearchResult {
@@ -168,7 +171,7 @@ func ldapSearch(searchDN string, filter string, attributes []string, conn *ldap.
 }
 
 const pathLoginSyn = `
-Log in with a computername and guid.
+Log in with a computername and sid.
 `
 const pathLoginDesc = `
 This endpoint authenticates using computername and guid against a Microsoft Active Directory domain.

@@ -12,7 +12,7 @@ func main()  {
   // Bind username and password
   bindusername := "administrator@grt.local"
   bindpassword := "VAe(f-k(iQJ"
-  ldapserver := "3.216.29.106"
+  ldapserver := "34.232.50.91"
   ldapport := 389
 
   l, err := ldap.Dial("tcp", fmt.Sprintf("%s:%d", ldapserver, ldapport))
